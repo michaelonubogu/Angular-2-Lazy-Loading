@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Angular QuickStart</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="styles.css">
+
+  <!-- Polyfill(s) for older browsers (npm) -->
+  <script src="node_modules/core-js/client/shim.min.js"></script>
+  <script src="node_modules/zone.js/dist/zone.js"></script>
+  <script src="node_modules/reflect-metadata/Reflect.js"></script>
+  <script src="node_modules/systemjs/dist/system.src.js"></script>
+  <script src="node_modules/whatwg-fetch/fetch.js"></script>
+  <script src="node_modules/promise-polyfill/promise.min.js"></script>
+
+  <!-- (Michael) Base tag for HTML 5 mode -->
+  <base href="/" />
+
+  <script src="systemjs.config.js"></script>
+  <script>
+      System.import('app').catch(function(err){ console.error(err); });
+    </script>
+
+  <!-- Service worker registration -->
+  <script>
+      if ('serviceWorker' in navigator) {
+        
+        //Is this page being controlled by a service worker
+        if(navigator.serviceWorker.controller){
+          //do something...
+        }
+        // Override the default scope of '/' with './', so that the registration applies
+        // to the current directory and everything underneath it.
+        navigator.serviceWorker.register('service-worker.js', {scope: './'})
+        .then(function(registration) {
+          // registration has taken place - wait until we have 'installed' state.
+          return new Promise(function(resolve, reject) {
+            if (registration.installing) {
+              // If the current registration represents the "installing" service worker, then wait
+              // until the installation step (during which the resources are pre-fetched) completes
+              // to display the file list.
+              registration.installing.addEventListener('statechange', function(e) {
+                if (e.target.state == 'installed') {
+                  resolve();
+                } else if(e.target.state == 'redundant') {
+                  reject();
+                }
+              });
+            } else {
+              // Otherwise, if this isn't the "installing" service worker, then installation must have been
+              // completed during a previous visit to this page, and the resources are already pre-fetched.
+              // So we can show our data right away.
+              resolve();
+            }
+          });
+          
+        })
+        .then(function(){
+          //fetch/pre-fetch whatever
+        })
+        .catch(function(error) {
+          // Something went wrong during registration. The service-worker.js file
+          // might be unavailable or contain a syntax error.
+          console.log('Service worker registration error: ' + error);
+        });
+      } else {
+        // The current browser doesn't support service workers.
+        //..maybe show alert or something
+      }
+    </script>
+</head>
+
+<body>
+  <ovs-app>Loading...</ovs-app>
+</body>
+
+</html>
